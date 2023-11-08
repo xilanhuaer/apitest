@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/xilanhuaer/http-client/model/common/response"
 	"github.com/xilanhuaer/http-client/model/entity"
 )
 
@@ -13,5 +14,12 @@ func (u *UserApi) Create(context *gin.Context) {
 		err  error
 	)
 	if err = context.ShouldBindJSON(&user); err != nil {
+		response.OKWithMessage(err.Error(), context)
+		return
 	}
+	if err = userService.Create(user); err != nil {
+		response.FailWithMessage(err.Error(), context)
+		return
+	}
+	response.OK(context)
 }
