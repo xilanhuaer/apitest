@@ -23,3 +23,6 @@ func (u *UserApi) Create(context *gin.Context) {
 	}
 	response.OK(context)
 }
+func (u *UserApi) List(context *gin.Context) {
+
+}
