@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"reflect"
 
@@ -19,7 +20,10 @@ func main() {
 	// 读取配置文件，设置环境变量
 	global.GetConfig("config.yaml")
 	global.GetConn()
-	utils.SetEnv()
+	err := utils.SetEnv()
+	if err != nil {
+		log.Panic(err)
+	}
 	// 打印设置的环境变量
 	typeEnv := reflect.TypeOf(global.Config.Env)
 	for i := 0; i < typeEnv.NumField(); i++ {
@@ -36,5 +40,8 @@ func main() {
 	r.Use(middleware.JWTAuthMiddleware())
 	// 注册路由
 	router.Register(r)
-	r.Run(":8080")
+	err = r.Run(":8080")
+	if err != nil {
+		log.Panic(err)
+	}
 }

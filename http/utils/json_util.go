@@ -8,13 +8,13 @@ import (
 )
 
 func DataExtract(content, path, name string) (err error) {
-	var jsondata interface{}
+	var jsonData interface{}
 
-	err = json.Unmarshal([]byte(content), &jsondata)
+	err = json.Unmarshal([]byte(content), &jsonData)
 	if err != nil {
 		return err
 	}
-	lookup, err := jsonpath.JsonPathLookup(jsondata, path)
+	lookup, err := jsonpath.JsonPathLookup(jsonData, path)
 	if err != nil {
 		return err
 	}
@@ -22,6 +22,6 @@ func DataExtract(content, path, name string) (err error) {
 	if err != nil {
 		return err
 	}
-	os.Setenv(name, value)
-	return nil
+	err = os.Setenv(name, value)
+	return err
 }

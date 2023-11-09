@@ -10,7 +10,7 @@ import (
 	"github.com/xilanhuaer/http-client/model/common/claim"
 )
 
-// 生成JWT
+// GenJWT 生成JWT
 func GenJWT(userId uint, userName string) (string, error) {
 	claims := claim.UserClaim{
 		UserId:   userId,
@@ -27,11 +27,12 @@ func GenJWT(userId uint, userName string) (string, error) {
 	return fmt.Sprintf("Bearer %s", tokenString), err
 }
 
-// 解析JWT
+// ParseJWT 解析JWT
 func ParseJWT(tokenString string) (*claim.UserClaim, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &claim.UserClaim{}, security())
 	if err != nil {
-		if ve, ok := err.(*jwt.ValidationError); ok {
+		var ve *jwt.ValidationError
+		if errors.As(err, &ve) {
 			if ve.Errors&jwt.ValidationErrorMalformed != 0 {
 				return nil, errors.New("that's not even a token")
 			} else if ve.Errors&jwt.ValidationErrorExpired != 0 {

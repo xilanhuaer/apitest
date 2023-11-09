@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// 正则替换
+// Replace 正则替换
 func Replace(content *string) {
 	re := regexp.MustCompile(`\${([^}]+)}`)
 	matches := re.FindAllStringSubmatch(*content, -1)

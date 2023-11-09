@@ -65,21 +65,27 @@ func (u *UserApi) Login(context *gin.Context) {
 	response.OKWithData(userinfo, context)
 }
 
-// 用户列表
+// List 用户列表
 func (u *UserApi) List(context *gin.Context) {
 }
 
-// userinfo
+// Find userinfo
 func (u *UserApi) Find(context *gin.Context) {
-
+	id := context.Param("id")
+	userinfo, err := userService.Find(id)
+	if err != nil {
+		response.FailWithMessage(err.Error(), context)
+		return
+	}
+	response.OKWithData(userinfo, context)
 }
 
-// 修改密码
+// UpdatePassword 修改密码
 func (u *UserApi) UpdatePassword(context *gin.Context) {
 
 }
 
-// 更新用户信息
+// Update 更新用户信息
 func (u *UserApi) Update(context *gin.Context) {
 
 }

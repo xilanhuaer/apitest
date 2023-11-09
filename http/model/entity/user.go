@@ -20,12 +20,16 @@ type User struct {
 	DeletedAt   gorm.DeletedAt `gorm:"index"`
 }
 
+// TableName 设置表名
 func (User) TableName() string {
 	return "user"
 }
+
+// AfterFind 查询后置钩子
 func (u *User) AfterFind(tx *gorm.DB) (err error) {
-	if u.Phone != "" && len(u.Phone) == 11 {
-		u.Phone = u.Phone[:3] + "****" + u.Phone[:7]
+	// 隐藏电话号码
+	if u.Phone != "" {
+		u.Phone = u.Phone[:3] + "****" + u.Phone[7:]
 	}
 	return
 }

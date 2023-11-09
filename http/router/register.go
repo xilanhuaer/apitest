@@ -10,6 +10,6 @@ func Register(route *gin.Engine) {
 		userGroup.GET("", userApi.List)
 		userGroup.GET("/:id", userApi.Find)
 		userGroup.PUT("/password/:id", userApi.UpdatePassword)
-		userGroup.PUT(":/id", userApi.Update)
+		userGroup.PUT("/:id", userApi.Update)
 	}
 }

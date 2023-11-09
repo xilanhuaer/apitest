@@ -19,7 +19,7 @@ var (
 	configBytes []byte
 )
 
-// 读取配置文件
+// GetConfig 读取配置文件
 func GetConfig(path string) {
 	configBytes, err = os.ReadFile(path)
 	if err != nil {
@@ -31,7 +31,7 @@ func GetConfig(path string) {
 	}
 }
 
-// 数据库连接
+// GetConn 数据库连接
 func GetConn() {
 	database := Config.Database
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",

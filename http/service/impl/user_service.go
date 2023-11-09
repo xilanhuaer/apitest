@@ -13,6 +13,20 @@ type UserService struct{}
 func (u *UserService) Register(user entity.User) error {
 	err := global.DB.Where("account = ?", user.Account).First(&entity.User{}).Error
 	if err != nil {
+		{
+			if !utils.IsAccount(user.Account) {
+				return fmt.Errorf("账号格式错误")
+			}
+			if !utils.IsPassword(user.Password) {
+				return fmt.Errorf("密码格式错误")
+			}
+			if user.Email != "" && !utils.IsEmail(user.Email) {
+				return fmt.Errorf("邮箱格式错误")
+			}
+			if user.Phone != "" && !utils.IsPhone(user.Phone) {
+				return fmt.Errorf("手机号格式错误")
+			}
+		}
 		user.Password = utils.RSA_Encrypt(user.Password, "./public.pem")
 		return global.DB.Create(&user).Error
 	}
@@ -33,6 +47,8 @@ func (u *UserService) Login(account, password string) (user entity.User, err err
 func (u *UserService) List(query map[string]string, limit, offset int) (users []entity.User, total int64, err error) {
 	return nil, 0, nil
 }
+
+// Find 根据id查询用户信息
 func (u *UserService) Find(id string) (entity.UserInfo, error) {
 	var (
 		userinfo entity.UserInfo
