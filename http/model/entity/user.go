@@ -23,3 +23,9 @@ type User struct {
 func (User) TableName() string {
 	return "user"
 }
+func (u *User) AfterFind(tx *gorm.DB) (err error) {
+	if u.Phone != "" && len(u.Phone) == 11 {
+		u.Phone = u.Phone[:3] + "****" + u.Phone[:7]
+	}
+	return
+}

@@ -18,6 +18,7 @@ func main() {
 	// utils.GenerateRSAKey(2048)
 	// 读取配置文件，设置环境变量
 	global.GetConfig("config.yaml")
+	global.GetConn()
 	utils.SetEnv()
 	// 打印设置的环境变量
 	typeEnv := reflect.TypeOf(global.Config.Env)

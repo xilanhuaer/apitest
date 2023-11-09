@@ -11,7 +11,7 @@ import (
 type UserService struct{}
 
 func (u *UserService) Register(user entity.User) error {
-	err := global.DB.First(&user).Error
+	err := global.DB.Where("account = ?", user.Account).First(&entity.User{}).Error
 	if err != nil {
 		user.Password = utils.RSA_Encrypt(user.Password, "./public.pem")
 		return global.DB.Create(&user).Error
@@ -32,4 +32,24 @@ func (u *UserService) Login(account, password string) (user entity.User, err err
 
 func (u *UserService) List(query map[string]string, limit, offset int) (users []entity.User, total int64, err error) {
 	return nil, 0, nil
+}
+func (u *UserService) Find(id string) (entity.UserInfo, error) {
+	var (
+		userinfo entity.UserInfo
+		user     entity.User
+	)
+	err := global.DB.Where("id = ?", id).First(&user).Error
+	if err != nil {
+		return entity.UserInfo{}, err
+	}
+	{
+		userinfo.ID = user.ID
+		userinfo.Account = user.Account
+		userinfo.Name = user.Name
+		userinfo.Avatar = user.Avatar
+		userinfo.Email = user.Email
+		userinfo.Phone = user.Phone
+		userinfo.Description = user.Description
+	}
+	return userinfo, err
 }

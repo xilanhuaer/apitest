@@ -21,11 +21,12 @@ func (u *UserApi) Register(context *gin.Context) {
 		}
 	)
 	if err = context.ShouldBindJSON(&register); err != nil {
-		response.OKWithMessage(err.Error(), context)
+		response.FailWithMessage(err.Error(), context)
 		return
 	}
 	if register.Code != os.Getenv("RegisterCode") {
 		response.FailWithMessage("邀请码错误", context)
+		return
 	}
 	user = register.User
 	if err = userService.Register(user); err != nil {
@@ -64,5 +65,21 @@ func (u *UserApi) Login(context *gin.Context) {
 	response.OKWithData(userinfo, context)
 }
 
+// 用户列表
 func (u *UserApi) List(context *gin.Context) {
+}
+
+// userinfo
+func (u *UserApi) Find(context *gin.Context) {
+
+}
+
+// 修改密码
+func (u *UserApi) UpdatePassword(context *gin.Context) {
+
+}
+
+// 更新用户信息
+func (u *UserApi) Update(context *gin.Context) {
+
 }
