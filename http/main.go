@@ -25,10 +25,15 @@ func main() {
 		field := typeEnv.Field(i)
 		fmt.Println(field.Name, os.Getenv(field.Name))
 	}
+	// 创建路由
 	r := gin.New()
+	// 增加日志打印
 	r.Use(gin.Logger())
+	// 设置允许跨域
 	r.Use(cors.Default())
+	// 增加身份验证
 	r.Use(middleware.JWTAuthMiddleware())
+	// 注册路由
 	router.Register(r)
 	r.Run(":8080")
 }

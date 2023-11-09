@@ -29,7 +29,7 @@ func GenJWT(userId uint, userName string) (string, error) {
 
 // 解析JWT
 func ParseJWT(tokenString string) (*claim.UserClaim, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &claim.UserClaim{}, Security())
+	token, err := jwt.ParseWithClaims(tokenString, &claim.UserClaim{}, security())
 	if err != nil {
 		if ve, ok := err.(*jwt.ValidationError); ok {
 			if ve.Errors&jwt.ValidationErrorMalformed != 0 {
@@ -50,7 +50,7 @@ func ParseJWT(tokenString string) (*claim.UserClaim, error) {
 	}
 }
 
-func Security() jwt.Keyfunc {
+func security() jwt.Keyfunc {
 	return func(token *jwt.Token) (interface{}, error) {
 		return []byte(os.Getenv("UserSecret")), nil
 	}
