@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -90,15 +89,9 @@ func (u *UserApi) Find(context *gin.Context) {
 
 // UpdatePassword 修改密码
 func (u *UserApi) UpdatePassword(context *gin.Context) {
-	id := context.Param("id")
-	userId, ok := context.MustGet("userId").(uint)
-	if ok {
-		if id != fmt.Sprintf("%v", userId) {
-			response.FailWithMessage("你无权修改此账号的密码", context)
-			return
-		}
-	} else {
-		response.FailWithMessage("获取身份信息失败，请重新登录", context)
+	id, err := utils.ValidUserAuthority(context)
+	if err != nil {
+		response.FailWithMessage(err.Error(), context)
 		return
 	}
 	var password struct {
@@ -106,11 +99,11 @@ func (u *UserApi) UpdatePassword(context *gin.Context) {
 		New   string
 		Renew string
 	}
-	if err := context.ShouldBindJSON(&password); err != nil {
+	if err = context.ShouldBindJSON(&password); err != nil {
 		response.FailWithMessage(err.Error(), context)
 		return
 	}
-	err := userService.UpdatePassword(password.Old, password.New, id)
+	err = userService.UpdatePassword(password.Old, password.New, id)
 	if err != nil {
 		response.FailWithMessage(err.Error(), context)
 		return
@@ -120,15 +113,9 @@ func (u *UserApi) UpdatePassword(context *gin.Context) {
 
 // Update 更新用户信息
 func (u *UserApi) Update(context *gin.Context) {
-	id := context.Param("id")
-	userId, ok := context.MustGet("userId").(uint)
-	if ok {
-		if id != fmt.Sprintf("%v", userId) {
-			response.FailWithMessage("你无权修改此账号的信息", context)
-			return
-		}
-	} else {
-		response.FailWithMessage("获取身份信息失败，请重新登录", context)
+	id, err := utils.ValidUserAuthority(context)
+	if err != nil {
+		response.FailWithMessage(err.Error(), context)
 		return
 	}
 	var message struct {
@@ -138,7 +125,7 @@ func (u *UserApi) Update(context *gin.Context) {
 		Phone       string
 		Description string
 	}
-	err := context.ShouldBindJSON(&message)
+	err = context.ShouldBindJSON(&message)
 	if err != nil {
 		response.FailWithMessage(err.Error(), context)
 		return

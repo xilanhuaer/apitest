@@ -1,6 +1,12 @@
 package utils
 
-import "regexp"
+import (
+	"fmt"
+	"regexp"
+
+	"github.com/gin-gonic/gin"
+	"github.com/xilanhuaer/http-client/model/common/response"
+)
 
 // 判断是否为有效的邮箱
 func IsEmail(email string) bool {
@@ -48,4 +54,18 @@ func Match(pattern string, str string) bool {
 
 func Regexp(pattern string) *regexp.Regexp {
 	return regexp.MustCompile(pattern)
+}
+
+func ValidUserAuthority(context *gin.Context) (id string, err error) {
+	id = context.Param("id")
+	userId, ok := context.MustGet("userId").(uint)
+	if ok {
+		if id != fmt.Sprintf("%v", userId) {
+			response.FailWithMessage("", context)
+			return id, fmt.Errorf("你无权修改此账号的信息")
+		}
+	} else {
+		return id, fmt.Errorf("获取身份信息失败，请重新登录")
+	}
+	return id, nil
 }
