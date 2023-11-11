@@ -4,6 +4,7 @@ import (
 	"github.com/xilanhuaer/http-client/common/response"
 	"github.com/xilanhuaer/http-client/dal/model"
 	"os"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/xilanhuaer/http-client/utils"
@@ -16,8 +17,14 @@ func (u *UserApi) Register(context *gin.Context) {
 		user     model.User
 		err      error
 		register struct {
-			User model.User
-			Code string `json:"code"`
+			Account     string `json:"account"`
+			Password    string `json:"password"`
+			Name        string `json:"name"`
+			Avatar      string `json:"avatar"`
+			Email       string `json:"email"`
+			Phone       string `json:"phone"`
+			Description string `json:"description"`
+			Code        string `json:"code"`
 		}
 	)
 	if err = context.ShouldBindJSON(&register); err != nil {
@@ -28,7 +35,16 @@ func (u *UserApi) Register(context *gin.Context) {
 		response.FailWithMessage("邀请码错误", context)
 		return
 	}
-	user = register.User
+	// 拷贝register到user
+	{
+		user.Account = register.Account
+		user.Name = register.Name
+		user.Avatar = register.Avatar
+		user.Password = register.Password
+		user.Email = register.Email
+		user.Phone = register.Phone
+		user.Description = register.Description
+	}
 	if err = userService.Register(user); err != nil {
 		response.FailWithMessage(err.Error(), context)
 		return
@@ -78,7 +94,11 @@ func (u *UserApi) List(context *gin.Context) {
 
 // Find userinfo
 func (u *UserApi) Find(context *gin.Context) {
-	id := context.Param("id")
+	id, err := strconv.Atoi(context.Param("id"))
+	if err != nil {
+		response.FailWithMessage(err.Error(), context)
+		return
+	}
 	userinfo, err := userService.Find(id)
 	if err != nil {
 		response.FailWithMessage(err.Error(), context)

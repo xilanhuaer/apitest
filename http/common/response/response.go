@@ -18,6 +18,7 @@ func result(code int, data interface{}, message string, context *gin.Context) {
 		Data:    data,
 		Message: message,
 	})
+	return
 }
 
 func OK(context *gin.Context) {

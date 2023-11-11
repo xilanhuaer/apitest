@@ -56,16 +56,16 @@ func Regexp(pattern string) *regexp.Regexp {
 	return regexp.MustCompile(pattern)
 }
 
-func ValidUserAuthority(context *gin.Context) (id string, err error) {
-	id = context.Param("id")
+func ValidUserAuthority(context *gin.Context) (userId int32, err error) {
+	id := context.Param("id")
 	userId, ok := context.MustGet("userId").(int32)
 	if ok {
 		if id != fmt.Sprintf("%v", userId) {
 			response.FailWithMessage("", context)
-			return id, fmt.Errorf("你无权修改此账号的信息")
+			return 0, fmt.Errorf("你无权修改此账号的信息")
 		}
 	} else {
-		return id, fmt.Errorf("获取身份信息失败，请重新登录")
+		return 0, fmt.Errorf("获取身份信息失败，请重新登录")
 	}
-	return id, nil
+	return userId, nil
 }

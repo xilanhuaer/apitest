@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/xilanhuaer/http-client/dal/query"
 	"github.com/xilanhuaer/http-client/global"
 	"github.com/xilanhuaer/http-client/middleware"
 	"github.com/xilanhuaer/http-client/router"
@@ -16,6 +17,7 @@ import (
 func init() {
 	global.GetConfig("config.yaml")
 	global.GetConn()
+	query.SetDefault(global.DB)
 	err := utils.SetEnv()
 	if err != nil {
 		log.Panic(err)

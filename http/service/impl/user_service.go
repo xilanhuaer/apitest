@@ -1,9 +1,11 @@
 package impl
 
 import (
+	"context"
 	"fmt"
 	"github.com/xilanhuaer/http-client/common/response"
 	"github.com/xilanhuaer/http-client/dal/model"
+	"github.com/xilanhuaer/http-client/dal/query"
 	"github.com/xilanhuaer/http-client/dal/vo"
 	"github.com/xilanhuaer/http-client/global"
 	"github.com/xilanhuaer/http-client/utils"
@@ -11,8 +13,9 @@ import (
 
 type UserService struct{}
 
-func (u *UserService) Register(user model.User) error {
-	err := global.DB.Where("account = ?", user.Account).First(&model.User{}).Error
+func (userService *UserService) Register(user model.User) error {
+	u := query.User
+	_, err := u.WithContext(context.Background()).Where(u.Account.Eq(user.Account)).First()
 	if err != nil {
 		{
 			if !utils.IsAccount(user.Account) {
@@ -29,14 +32,14 @@ func (u *UserService) Register(user model.User) error {
 			}
 		}
 		user.Password = utils.RSA_Encrypt(user.Password, "./public.pem")
-		return global.DB.Create(&user).Error
+		return query.User.WithContext(context.Background()).Create(&user)
 	}
 	return fmt.Errorf("用户已存在，请重试")
 }
 
-func (u *UserService) Login(account, password string) (userinfo vo.Userinfo, err error) {
-	var user model.User
-	err = global.DB.Where("account = ?", account).First(&user).Error
+func (userService *UserService) Login(account, password string) (userinfo vo.Userinfo, err error) {
+	u := query.User
+	user, err := u.WithContext(context.Background()).Where(u.Account.Eq(account)).First()
 	if err != nil {
 		return vo.Userinfo{}, err
 	}
@@ -56,21 +59,21 @@ func (u *UserService) Login(account, password string) (userinfo vo.Userinfo, err
 	return vo.Userinfo{}, fmt.Errorf("密码错误")
 }
 
-func (u *UserService) List(params map[string]string, limit, offset int) (response.Page, error) {
-	query := global.DB.Model(&model.User{})
+func (userService *UserService) List(params map[string]string, limit, offset int) (response.Page, error) {
+	query1 := global.DB.Model(&model.User{})
 	var userList []model.User
 	var total int64
 	for key, value := range params {
 		if value != "" {
-			query.Where(fmt.Sprintf("%s = ?", key), value)
+			query1.Where(fmt.Sprintf("%s = ?", key), value)
 		}
 	}
-	err := query.Count(&total).Error
+	err := query1.Count(&total).Error
 	if err != nil {
 		return response.Page{}, err
 	}
 
-	err = query.Limit(limit).Offset(offset).Find(&userList).Error
+	err = query1.Limit(limit).Offset(offset).Find(&userList).Error
 	if err != nil {
 		return response.Page{}, err
 	}
@@ -81,12 +84,11 @@ func (u *UserService) List(params map[string]string, limit, offset int) (respons
 }
 
 // Find 根据id查询用户信息
-func (u *UserService) Find(id string) (vo.Userinfo, error) {
+func (userService *UserService) Find(id int) (vo.Userinfo, error) {
 	var (
 		userinfo vo.Userinfo
-		user     model.User
 	)
-	err := global.DB.Where("id = ?", id).First(&user).Error
+	user, err := query.User.WithContext(context.Background()).Where(query.User.ID.Eq(int32(id))).First()
 	if err != nil {
 		return vo.Userinfo{}, err
 	}
@@ -102,20 +104,26 @@ func (u *UserService) Find(id string) (vo.Userinfo, error) {
 	return userinfo, err
 }
 
-func (u *UserService) UpdatePassword(oldPassword, newPassword, id string) error {
-	var user model.User
-	err := global.DB.Where("id = ?", id).First(&user).Error
+func (userService *UserService) UpdatePassword(oldPassword, newPassword string, id int32) error {
+	user, err := query.User.WithContext(context.Background()).Where(query.User.ID.Eq(id)).First()
 	if err != nil {
 		return err
 	}
-	if utils.RSA_Decrypt(user.Password, "./private.pem") != oldPassword {
-		return fmt.Errorf("密码错误请重试")
+	if utils.RSA_Decrypt(user.Password, "private.pem") == oldPassword {
+		_, err = query.User.WithContext(context.Background()).Where(query.User.ID.Eq(id)).
+			Updates(map[string]interface{}{
+				"password": utils.RSA_Encrypt(newPassword, "public.pem"),
+			})
+		if err != nil {
+			return err
+		}
 	}
-	err = global.DB.Model(&model.User{}).Update("password", utils.RSA_Encrypt(newPassword, "./public.pem")).Error
-	return err
+	return fmt.Errorf("密码错误")
 }
 
-func (u *UserService) Update(id string, message interface{}) error {
+func (userService *UserService) Update(id int32, message interface{}) error {
 	data := utils.StructToMap(message)
-	return global.DB.Model(&model.User{}).Where("id = ?", id).Updates(data).Error
+	_, err := query.User.WithContext(context.Background()).Where(query.User.ID.Eq(id)).
+		Updates(data)
+	return err
 }
