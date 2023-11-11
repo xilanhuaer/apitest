@@ -2,10 +2,10 @@ package utils
 
 import (
 	"fmt"
+	"github.com/xilanhuaer/http-client/common/response"
 	"regexp"
 
 	"github.com/gin-gonic/gin"
-	"github.com/xilanhuaer/http-client/model/common/response"
 )
 
 // 判断是否为有效的邮箱
@@ -58,7 +58,7 @@ func Regexp(pattern string) *regexp.Regexp {
 
 func ValidUserAuthority(context *gin.Context) (id string, err error) {
 	id = context.Param("id")
-	userId, ok := context.MustGet("userId").(uint)
+	userId, ok := context.MustGet("userId").(int32)
 	if ok {
 		if id != fmt.Sprintf("%v", userId) {
 			response.FailWithMessage("", context)

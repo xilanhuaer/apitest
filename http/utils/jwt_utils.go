@@ -3,15 +3,15 @@ package utils
 import (
 	"errors"
 	"fmt"
+	"github.com/xilanhuaer/http-client/common/claim"
 	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/xilanhuaer/http-client/model/common/claim"
 )
 
 // GenJWT 生成JWT
-func GenJWT(userId uint, userName string) (string, error) {
+func GenJWT(userId int32, userName string) (string, error) {
 	claims := claim.UserClaim{
 		UserId:   userId,
 		UserName: userName,

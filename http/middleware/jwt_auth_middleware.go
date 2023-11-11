@@ -1,10 +1,10 @@
 package middleware
 
 import (
+	"github.com/xilanhuaer/http-client/common/response"
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/xilanhuaer/http-client/model/common/response"
 	"github.com/xilanhuaer/http-client/utils"
 )
 

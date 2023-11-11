@@ -2,10 +2,10 @@ package global
 
 import (
 	"fmt"
+	"github.com/xilanhuaer/http-client/common/config"
 	"log"
 	"os"
 
-	"github.com/xilanhuaer/http-client/model/common/config"
 	"gopkg.in/yaml.v3"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"

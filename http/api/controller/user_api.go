@@ -1,11 +1,11 @@
 package controller
 
 import (
+	"github.com/xilanhuaer/http-client/common/response"
+	"github.com/xilanhuaer/http-client/dal/model"
 	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/xilanhuaer/http-client/model/common/response"
-	"github.com/xilanhuaer/http-client/model/entity"
 	"github.com/xilanhuaer/http-client/utils"
 )
 
@@ -13,10 +13,10 @@ type UserApi struct{}
 
 func (u *UserApi) Register(context *gin.Context) {
 	var (
-		user     entity.User
+		user     model.User
 		err      error
 		register struct {
-			entity.User
+			User model.User
 			Code string `json:"code"`
 		}
 	)

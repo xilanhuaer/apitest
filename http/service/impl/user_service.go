@@ -2,17 +2,17 @@ package impl
 
 import (
 	"fmt"
-
+	"github.com/xilanhuaer/http-client/common/response"
+	"github.com/xilanhuaer/http-client/dal/model"
+	"github.com/xilanhuaer/http-client/dal/vo"
 	"github.com/xilanhuaer/http-client/global"
-	"github.com/xilanhuaer/http-client/model/common/response"
-	"github.com/xilanhuaer/http-client/model/entity"
 	"github.com/xilanhuaer/http-client/utils"
 )
 
 type UserService struct{}
 
-func (u *UserService) Register(user entity.User) error {
-	err := global.DB.Where("account = ?", user.Account).First(&entity.User{}).Error
+func (u *UserService) Register(user model.User) error {
+	err := global.DB.Where("account = ?", user.Account).First(&model.User{}).Error
 	if err != nil {
 		{
 			if !utils.IsAccount(user.Account) {
@@ -34,17 +34,18 @@ func (u *UserService) Register(user entity.User) error {
 	return fmt.Errorf("用户已存在，请重试")
 }
 
-func (u *UserService) Login(account, password string) (userinfo entity.UserInfo, err error) {
-	var user entity.User
+func (u *UserService) Login(account, password string) (userinfo vo.Userinfo, err error) {
+	var user model.User
 	err = global.DB.Where("account = ?", account).First(&user).Error
 	if err != nil {
-		return entity.UserInfo{}, err
+		return vo.Userinfo{}, err
 	}
 	if utils.RSA_Decrypt(user.Password, "./private.pem") == password {
 		{
 			userinfo.ID = user.ID
 			userinfo.Name = user.Name
 			userinfo.Account = user.Account
+			userinfo.Avatar = user.Avatar
 			userinfo.Email = user.Email
 			userinfo.Phone = user.Phone
 			userinfo.Description = user.Description
@@ -52,12 +53,12 @@ func (u *UserService) Login(account, password string) (userinfo entity.UserInfo,
 		}
 		return userinfo, nil
 	}
-	return entity.UserInfo{}, fmt.Errorf("密码错误")
+	return vo.Userinfo{}, fmt.Errorf("密码错误")
 }
 
 func (u *UserService) List(params map[string]string, limit, offset int) (response.Page, error) {
-	query := global.DB.Model(&entity.User{})
-	var userList []entity.User
+	query := global.DB.Model(&model.User{})
+	var userList []model.User
 	var total int64
 	for key, value := range params {
 		if value != "" {
@@ -80,14 +81,14 @@ func (u *UserService) List(params map[string]string, limit, offset int) (respons
 }
 
 // Find 根据id查询用户信息
-func (u *UserService) Find(id string) (entity.UserInfo, error) {
+func (u *UserService) Find(id string) (vo.Userinfo, error) {
 	var (
-		userinfo entity.UserInfo
-		user     entity.User
+		userinfo vo.Userinfo
+		user     model.User
 	)
 	err := global.DB.Where("id = ?", id).First(&user).Error
 	if err != nil {
-		return entity.UserInfo{}, err
+		return vo.Userinfo{}, err
 	}
 	{
 		userinfo.ID = user.ID
@@ -102,7 +103,7 @@ func (u *UserService) Find(id string) (entity.UserInfo, error) {
 }
 
 func (u *UserService) UpdatePassword(oldPassword, newPassword, id string) error {
-	var user entity.User
+	var user model.User
 	err := global.DB.Where("id = ?", id).First(&user).Error
 	if err != nil {
 		return err
@@ -110,11 +111,11 @@ func (u *UserService) UpdatePassword(oldPassword, newPassword, id string) error 
 	if utils.RSA_Decrypt(user.Password, "./private.pem") != oldPassword {
 		return fmt.Errorf("密码错误请重试")
 	}
-	err = global.DB.Model(&entity.User{}).Update("password", utils.RSA_Encrypt(newPassword, "./public.pem")).Error
+	err = global.DB.Model(&model.User{}).Update("password", utils.RSA_Encrypt(newPassword, "./public.pem")).Error
 	return err
 }
 
 func (u *UserService) Update(id string, message interface{}) error {
 	data := utils.StructToMap(message)
-	return global.DB.Model(&entity.User{}).Where("id = ?", id).Updates(data).Error
+	return global.DB.Model(&model.User{}).Where("id = ?", id).Updates(data).Error
 }
