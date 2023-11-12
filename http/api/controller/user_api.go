@@ -71,20 +71,8 @@ func (u *UserApi) Login(context *gin.Context) {
 
 // List 用户列表
 func (u *UserApi) List(context *gin.Context) {
-	params := map[string]string{
-		"name":    context.DefaultQuery("name", ""),
-		"email":   context.DefaultQuery("email", ""),
-		"account": context.DefaultQuery("account", ""),
-	}
-	limit, offset, err := utils.PageUtil(
-		context.DefaultQuery("page", "1"),
-		context.DefaultQuery("page_size", "10"),
-	)
-	if err != nil {
-		response.FailWithMessage(err.Error(), context)
-		return
-	}
-	data, err := userService.List(params, limit, offset)
+	params := context.Request.URL.RawQuery
+	data, err := userService.List(params)
 	if err != nil {
 		response.FailWithMessage(err.Error(), context)
 		return

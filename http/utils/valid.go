@@ -2,7 +2,6 @@ package utils
 
 import (
 	"fmt"
-	"github.com/xilanhuaer/http-client/common/response"
 	"regexp"
 
 	"github.com/gin-gonic/gin"
@@ -61,7 +60,6 @@ func ValidUserAuthority(context *gin.Context) (userId int32, err error) {
 	userId, ok := context.MustGet("userId").(int32)
 	if ok {
 		if id != fmt.Sprintf("%v", userId) {
-			response.FailWithMessage("", context)
 			return 0, fmt.Errorf("你无权修改此账号的信息")
 		}
 	} else {

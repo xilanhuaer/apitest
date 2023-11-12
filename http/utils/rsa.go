@@ -52,10 +52,10 @@ func GenerateRSAKey(bits int) {
 	pem.Encode(publicFile, &publicBlock)
 }
 
-// RSA加密
+// RsaEncrypt RSA加密
 // plainText 要加密的数据
 // path 公钥匙文件地址
-func RSA_Encrypt(content string, path string) string {
+func RsaEncrypt(content string, path string) string {
 	plainText := []byte(content)
 	// 打开文件
 	file, err := os.Open(path)
@@ -87,10 +87,10 @@ func RSA_Encrypt(content string, path string) string {
 	return cipherString
 }
 
-// RSA解密
+// RsaDecrypt RSA解密
 // cipherText 需要解密的byte数据
 // path 私钥文件路径
-func RSA_Decrypt(cipherString string, path string) string {
+func RsaDecrypt(cipherString string, path string) string {
 	// 打开文件
 	file, err := os.Open(path)
 	if err != nil {

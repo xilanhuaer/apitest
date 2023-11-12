@@ -15,7 +15,9 @@ type UserService struct{}
 
 func (userService *UserService) Register(user model.User) error {
 	u := query.User
-	_, err := u.WithContext(context.Background()).Where(u.Account.Eq(user.Account)).First()
+	_, err := u.WithContext(context.Background()).
+		Where(u.Account.Eq(user.Account)).
+		First()
 	if err != nil {
 		{
 			if !utils.IsAccount(user.Account) {
@@ -31,19 +33,21 @@ func (userService *UserService) Register(user model.User) error {
 				return fmt.Errorf("手机号格式错误")
 			}
 		}
-		user.Password = utils.RSA_Encrypt(user.Password, "./public.pem")
-		return query.User.WithContext(context.Background()).Create(&user)
+		user.Password = utils.RsaEncrypt(user.Password, "./public.pem")
+		return query.User.WithContext(context.Background()).
+			Create(&user)
 	}
 	return fmt.Errorf("用户已存在，请重试")
 }
 
 func (userService *UserService) Login(account, password string) (userinfo vo.Userinfo, err error) {
-	u := query.User
-	user, err := u.WithContext(context.Background()).Where(u.Account.Eq(account)).First()
+	user, err := query.User.WithContext(context.Background()).
+		Where(query.User.Account.Eq(account)).
+		First()
 	if err != nil {
 		return vo.Userinfo{}, err
 	}
-	if utils.RSA_Decrypt(user.Password, "./private.pem") == password {
+	if utils.RsaDecrypt(user.Password, "./private.pem") == password {
 		{
 			userinfo.ID = user.ID
 			userinfo.Name = user.Name
@@ -59,28 +63,24 @@ func (userService *UserService) Login(account, password string) (userinfo vo.Use
 	return vo.Userinfo{}, fmt.Errorf("密码错误")
 }
 
-func (userService *UserService) List(params map[string]string, limit, offset int) (response.Page, error) {
-	query1 := global.DB.Model(&model.User{})
-	var userList []model.User
-	var total int64
-	for key, value := range params {
-		if value != "" {
-			query1.Where(fmt.Sprintf("%s = ?", key), value)
-		}
-	}
-	err := query1.Count(&total).Error
+func (userService *UserService) List(params string) (response.Page, error) {
+	db, err := utils.ParseCondition(global.DB.Model(&model.User{}), params)
 	if err != nil {
 		return response.Page{}, err
 	}
-
-	err = query1.Limit(limit).Offset(offset).Find(&userList).Error
+	var (
+		total int64
+		user  []model.User
+	)
+	err = db.Count(&total).Error
 	if err != nil {
 		return response.Page{}, err
 	}
-	return response.Page{
-		List:  userList,
-		Total: total,
-	}, err
+	err = db.Find(&user).Error
+	if err != nil {
+		return response.Page{}, err
+	}
+	return response.Page{List: user, Total: total}, err
 }
 
 // Find 根据id查询用户信息
@@ -88,7 +88,9 @@ func (userService *UserService) Find(id int) (vo.Userinfo, error) {
 	var (
 		userinfo vo.Userinfo
 	)
-	user, err := query.User.WithContext(context.Background()).Where(query.User.ID.Eq(int32(id))).First()
+	user, err := query.User.WithContext(context.Background()).
+		Where(query.User.ID.Eq(int32(id))).
+		First()
 	if err != nil {
 		return vo.Userinfo{}, err
 	}
@@ -105,25 +107,26 @@ func (userService *UserService) Find(id int) (vo.Userinfo, error) {
 }
 
 func (userService *UserService) UpdatePassword(oldPassword, newPassword string, id int32) error {
-	user, err := query.User.WithContext(context.Background()).Where(query.User.ID.Eq(id)).First()
+	user, err := query.User.WithContext(context.Background()).
+		Where(query.User.ID.Eq(id)).
+		First()
 	if err != nil {
 		return err
 	}
-	if utils.RSA_Decrypt(user.Password, "private.pem") == oldPassword {
-		_, err = query.User.WithContext(context.Background()).Where(query.User.ID.Eq(id)).
-			Updates(map[string]interface{}{
-				"password": utils.RSA_Encrypt(newPassword, "public.pem"),
-			})
-		if err != nil {
-			return err
-		}
+	password := utils.RsaDecrypt(user.Password, "private.pem")
+	if password == oldPassword {
+		_, err = query.User.WithContext(context.Background()).
+			Where(query.User.ID.Eq(id)).
+			Update(query.User.Password, utils.RsaEncrypt(newPassword, "public.pem"))
+		return err
 	}
 	return fmt.Errorf("密码错误")
 }
 
 func (userService *UserService) Update(id int32, message interface{}) error {
 	data := utils.StructToMap(message)
-	_, err := query.User.WithContext(context.Background()).Where(query.User.ID.Eq(id)).
+	_, err := query.User.WithContext(context.Background()).
+		Where(query.User.ID.Eq(id)).
 		Updates(data)
 	return err
 }

@@ -2,57 +2,91 @@ package utils
 
 import (
 	"fmt"
+	"gorm.io/gorm"
+	"regexp"
+	"strconv"
 	"strings"
 )
 
-func ParseCondition(paramsString string) (map[string]interface{}, error) {
-	// 如果没有条件，直接返回空字符串
-	if paramsString == "" {
-		return make(map[string]interface{}), nil
-	}
-	params := make(map[string]interface{})
-	// 按照 # 分割条件
-	conditions := strings.Split(paramsString, "#")
-	// 遍历条件
-	for _, condition := range conditions {
-		// 按照 | 分割条件
-		parts := strings.Split(condition, "|")
-		// 如果条件格式不正确，返回错误
-		if len(parts) == 3 {
-			key := parts[0]
-			values := parts[2]
-			// 获取操作符，并转换为小写
-			operation := strings.ToLower(parts[1])
-			switch operation {
-			case "eq":
-				params[key] = values
-			case "ne":
-				params[key+" <>"] = values
-			case "gt":
-				params[key+" >"] = values
-			case "ge":
-				params[key+" >="] = values
-			case "lt":
-				params[key+" <"] = values
-			case "le":
-				params[key+" <="] = values
-			case "like":
-				params[key+" LIKE"] = values
-			case "between":
-				value := strings.Split(values, ",")
-				if len(value) == 2 {
-					params[key+" BETWEEN ? AND ?"] = value
-				} else {
-					return make(map[string]interface{}), fmt.Errorf("between operation needs two values")
-				}
-			default:
-				return make(map[string]interface{}), fmt.Errorf("unsupported operation: %s", operation)
-			}
+type Filter struct {
+	Field   string
+	Command string
+	Value   string
+}
+type Condition struct {
+	Page     int
+	PageSize int
+	Filters  []Filter
+}
 
-		} else {
-			return make(map[string]interface{}), fmt.Errorf("condition format error")
+// ParseCondition return query, limit, offset, err
+// paramsString: "page=1&page_size=10&filter=id|eq|1#created_at|between|2020-01-01,2020-01-02
+func ParseCondition(query *gorm.DB, paramsString string) (*gorm.DB, error) {
+	condition := Condition{
+		Page:     1,
+		PageSize: 10,
+		Filters:  []Filter{},
+	}
+
+	if paramsString != "" {
+		re := regexp.MustCompile(`(page|page_size|filter)=([^&]+)`)
+		// matches format : [[page=1 page 1] [page_size=10 page_size 10] [filter=id|eq|1##created_at|between|2020-01-01,2020-01-02
+		matches := re.FindAllStringSubmatch(paramsString, -1)
+		for _, match := range matches {
+			key := match[1]
+			value := match[2]
+			switch key {
+			case "page":
+				page, err := strconv.Atoi(value)
+				if err != nil {
+					return query, fmt.Errorf("page参数错误")
+				}
+				condition.Page = page
+
+			case "page_size":
+				pageSize, err := strconv.Atoi(value)
+				if err != nil {
+					return query, fmt.Errorf("page_size参数错误")
+				}
+				condition.PageSize = pageSize
+			case "filter":
+				condition.Filters = parseFilter(value)
+			}
+		}
+	}
+	for _, value := range condition.Filters {
+		switch value.Command {
+		case "eq":
+			query = query.Where(fmt.Sprintf("%s = ?", value.Field), value.Value)
+		case "like":
+			query = query.Where(fmt.Sprintf("%s like ?", value.Field), fmt.Sprintf("%%%s%%", value.Value))
+		case "between":
+			// valueParts: ["2020-01-01" "2020-01-02"]
+			valueParts := strings.Split(value.Value, ",")
+			if len(valueParts) == 2 {
+				query = query.Where(fmt.Sprintf("%s between ? and ?", value.Field), valueParts[0], valueParts[1])
+			}
+		}
+	}
+	return query.Limit(condition.PageSize).Offset((condition.Page - 1) * condition.PageSize), nil
+}
+
+func parseFilter(filterString string) []Filter {
+	var filters []Filter
+	// filterString: ["id|eq|1" "created_at|between|2020-01-01,2020-01-02"]
+	filterParts := strings.Split(filterString, "#")
+	// part: "id|eq|1" "created_at|between|2020-01-01,2020-01-02"
+	for _, part := range filterParts {
+		// conditionParts: ["id" "eq" "1"] ["created_at" "between" "2020-01-01,2020-01-02"]
+		conditionParts := strings.Split(part, "|")
+		if len(conditionParts) == 3 {
+			filters = append(filters, Filter{
+				Field:   conditionParts[0],
+				Command: strings.ToLower(conditionParts[1]),
+				Value:   conditionParts[2],
+			})
 		}
 	}
 
-	return params, nil
+	return filters
 }
