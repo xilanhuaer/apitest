@@ -6,47 +6,46 @@ import (
 	"github.com/xilanhuaer/http-client/dal/model"
 )
 
-type SystemApi struct{}
+type ModuleApi struct{}
 
-func (systemApi *SystemApi) Create(context *gin.Context) {
-	var system model.System
-	if err := context.ShouldBindJSON(&system); err != nil {
+func (moduleApi *ModuleApi) Create(context *gin.Context) {
+	var module model.Module
+	if err := context.ShouldBindJSON(&module); err != nil {
 		response.FailWithMessage(err.Error(), context)
 		return
 	}
-	if err := systemService.Create(system); err != nil {
+	if err := moduleService.Create(module); err != nil {
 		response.FailWithMessage(err.Error(), context)
 		return
 	}
 	response.OK(context)
 }
-
-func (systemApi *SystemApi) List(context *gin.Context) {
+func (moduleApi *ModuleApi) List(context *gin.Context) {
 	params := context.Query("params")
-	page, err := systemService.List(params)
+	page, err := moduleService.List(params)
 	if err != nil {
 		response.FailWithMessage(err.Error(), context)
 		return
 	}
 	response.OKWithData(page, context)
 }
-func (systemApi *SystemApi) Find(context *gin.Context) {
+func (moduleApi *ModuleApi) Find(context *gin.Context) {
 	id := context.Param("id")
-	system, err := systemService.Find(id)
+	module, err := moduleService.Find(id)
 	if err != nil {
 		response.FailWithMessage(err.Error(), context)
 		return
 	}
-	response.OKWithData(system, context)
+	response.OKWithData(module, context)
 }
-func (systemApi *SystemApi) Update(context *gin.Context) {
-	var system model.System
-	if err := context.ShouldBindJSON(&system); err != nil {
+func (moduleApi *ModuleApi) Update(context *gin.Context) {
+	id := context.Param("id")
+	var module model.Module
+	if err := context.ShouldBindJSON(&module); err != nil {
 		response.FailWithMessage(err.Error(), context)
 		return
 	}
-	id := context.Param("id")
-	if err := systemService.Update(id, system); err != nil {
+	if err := moduleService.Update(id, module); err != nil {
 		response.FailWithMessage(err.Error(), context)
 		return
 	}
