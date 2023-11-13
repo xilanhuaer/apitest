@@ -3,6 +3,7 @@ package impl
 import (
 	"context"
 	"fmt"
+
 	"github.com/xilanhuaer/http-client/common/response"
 	"github.com/xilanhuaer/http-client/dal/model"
 	"github.com/xilanhuaer/http-client/dal/query"
@@ -85,9 +86,7 @@ func (userService *UserService) List(params string) (response.Page, error) {
 
 // Find 根据id查询用户信息
 func (userService *UserService) Find(id int) (vo.Userinfo, error) {
-	var (
-		userinfo vo.Userinfo
-	)
+	var userinfo vo.Userinfo
 	user, err := query.User.WithContext(context.Background()).
 		Where(query.User.ID.Eq(int32(id))).
 		First()
@@ -124,7 +123,7 @@ func (userService *UserService) UpdatePassword(oldPassword, newPassword string, 
 }
 
 func (userService *UserService) Update(id int32, message interface{}) error {
-	data := utils.StructToMap(message)
+	data := exchange.StructToMap(message)
 	_, err := query.User.WithContext(context.Background()).
 		Where(query.User.ID.Eq(id)).
 		Updates(data)

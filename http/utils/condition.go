@@ -2,10 +2,11 @@ package utils
 
 import (
 	"fmt"
-	"gorm.io/gorm"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"gorm.io/gorm"
 )
 
 type Filter struct {

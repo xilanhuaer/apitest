@@ -3,9 +3,10 @@ package utils
 import (
 	"errors"
 	"fmt"
-	"github.com/xilanhuaer/http-client/common/claim"
 	"os"
 	"time"
+
+	"github.com/xilanhuaer/http-client/common/claim"
 
 	"github.com/golang-jwt/jwt/v4"
 )

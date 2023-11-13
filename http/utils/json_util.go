@@ -2,6 +2,7 @@ package utils
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 
 	"github.com/oliveagle/jsonpath"
@@ -18,10 +19,7 @@ func DataExtract(content, path, name string) (err error) {
 	if err != nil {
 		return err
 	}
-	value, err := InterfaceToString(lookup)
-	if err != nil {
-		return err
-	}
+	value := fmt.Sprintf("%v", lookup)
 	err = os.Setenv(name, value)
 	return err
 }
