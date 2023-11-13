@@ -8,9 +8,7 @@ import (
 	"strings"
 )
 
-type Exchange struct{}
-
-func (e *Exchange) IdExchange(data string) (int32, error) {
+func StringToInt32(data string) (int32, error) {
 	id, err := strconv.Atoi(data)
 	if err != nil {
 		return 0, err
@@ -18,7 +16,7 @@ func (e *Exchange) IdExchange(data string) (int32, error) {
 	return int32(id), nil
 }
 
-func (e *Exchange) StringToMap(data string) (header map[string]string, err error) {
+func StringToMap(data string) (header map[string]string, err error) {
 	err = json.Unmarshal([]byte(data), &header)
 	if err != nil {
 		return nil, err
@@ -26,7 +24,7 @@ func (e *Exchange) StringToMap(data string) (header map[string]string, err error
 	return header, nil
 }
 
-func (e *Exchange) StructToMap(data interface{}) map[string]interface{} {
+func StructToMap(data interface{}) map[string]interface{} {
 	result := make(map[string]interface{})
 	typ := reflect.TypeOf(data)
 	val := reflect.ValueOf(data)
@@ -38,7 +36,7 @@ func (e *Exchange) StructToMap(data interface{}) map[string]interface{} {
 	return result
 }
 
-func (e *Exchange) InterfaceToString(origin interface{}) (data string, err error) {
+func InterfaceToString(origin interface{}) (data string, err error) {
 	switch reflect.TypeOf(origin).Kind() {
 	case reflect.String:
 		return origin.(string), nil

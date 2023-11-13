@@ -21,21 +21,21 @@ func (systemService *SystemService) List(params string) (response.Page, error) {
 		count  int64
 		system []model.System
 	)
-	query, err := utils.ParseCondition(global.DB.Model(&model.System{}), params)
+	q, err := utils.ParseCondition(global.DB.Model(&model.System{}), params)
 	if err != nil {
 		return response.Page{}, err
 	}
-	if err = query.Count(&count).Error; err != nil {
+	if err = q.Count(&count).Error; err != nil {
 		return response.Page{}, err
 	}
-	if err = query.Find(&system).Error; err != nil {
+	if err = q.Find(&system).Error; err != nil {
 		return response.Page{}, err
 	}
 	return response.Page{List: system, Total: count}, nil
 }
 
 func (systemService *SystemService) Find(id string) (model.System, error) {
-	idInt, err := exchange.IdExchange(id)
+	idInt, err := utils.StringToInt32(id)
 	if err != nil {
 		return model.System{}, err
 	}
@@ -47,11 +47,11 @@ func (systemService *SystemService) Find(id string) (model.System, error) {
 }
 
 func (systemService *SystemService) Update(id string, system model.System) error {
-	idInt, err := exchange.IdExchange(id)
+	idInt, err := utils.StringToInt32(id)
 	if err != nil {
 		return err
 	}
-	data := exchange.StructToMap(system)
+	data := utils.StructToMap(system)
 	_, err = query.System.WithContext(context.Background()).Where(query.System.ID.Eq(idInt)).Updates(data)
 	return err
 }
