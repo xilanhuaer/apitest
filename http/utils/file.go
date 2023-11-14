@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func ReadExcel(path string, data *[]entity.Data) {
+func ReadExcel(path string, data *[]entity.Data, maps map[string]interface{}) {
 	file, err := excelize.OpenFile(path)
 	if err != nil {
 		panic(err)
@@ -23,13 +23,13 @@ func ReadExcel(path string, data *[]entity.Data) {
 		content.Project.TestingBasis = row[2]
 		content.Project.TargetGene = row[3]
 		content.Project.TechPlatform = row[4]
-		content.Project.FlowID = parseString(row[5])
+		content.Project.FlowID = parseString(maps["flow"].(map[string]string)[row[5]])
 		content.Project.PricingMethod = row[6]
-		content.Project.Price = parseString(row[7]) * 100
+		content.Project.Price = parseString(maps["price"].(map[string]string)[row[7]]) * 100
 		content.Project.DetermineCondition = row[8]
 		parts := strings.Split(row[9], ",")
 		for _, v := range parts {
-			content.SampleCategoryIDs = append(content.SampleCategoryIDs, parseString(v))
+			content.SampleCategoryIDs = append(content.SampleCategoryIDs, parseString(maps["sample"].(map[string]string)[v]))
 		}
 		for i := 10; i < len(row); i++ {
 			if row[i] != "" {
@@ -40,8 +40,8 @@ func ReadExcel(path string, data *[]entity.Data) {
 				content.OperationSteps = append(content.OperationSteps,
 					entity.OperationSteps{
 						StepName:   operationStep[0],
-						FlowStepID: parseString(operationStep[1]),
-						WidgetType: parseString(operationStep[2]),
+						FlowStepID: parseString(maps["control"].(map[string]string)[operationStep[1]]),
+						WidgetType: parseString(maps["step"].(map[string]string)[operationStep[2]]),
 					},
 				)
 			}
