@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/xilanhuaer/http-client/common/response"
 	"github.com/xilanhuaer/http-client/dal/model"
 	"github.com/xilanhuaer/http-client/dal/query"
@@ -123,9 +124,8 @@ func (userService *UserService) UpdatePassword(oldPassword, newPassword string, 
 }
 
 func (userService *UserService) Update(id int32, message interface{}) error {
-	data := exchange.StructToMap(message)
 	_, err := query.User.WithContext(context.Background()).
 		Where(query.User.ID.Eq(id)).
-		Updates(data)
+		Updates(gconv.Map(message))
 	return err
 }

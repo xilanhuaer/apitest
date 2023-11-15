@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"os"
+	"reflect"
+
 	"github.com/xilanhuaer/http-client/common/entity"
 	"github.com/xilanhuaer/http-client/dal/query"
 	"github.com/xilanhuaer/http-client/global"
 	"github.com/xilanhuaer/http-client/utils"
-	"log"
-	"os"
-	"reflect"
 )
 
 func init() {

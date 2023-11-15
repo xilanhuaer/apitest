@@ -2,6 +2,8 @@ package impl
 
 import (
 	"context"
+
+	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/xilanhuaer/http-client/common/response"
 	"github.com/xilanhuaer/http-client/dal/model"
 	"github.com/xilanhuaer/http-client/dal/query"
@@ -23,6 +25,7 @@ func (moduleService *ModuleService) Create(module model.Module) error {
 	}
 	return query.Module.WithContext(context.Background()).Create(&module)
 }
+
 func (moduleService *ModuleService) List(params string) (response.Page, error) {
 	var (
 		module []model.Module
@@ -40,23 +43,16 @@ func (moduleService *ModuleService) List(params string) (response.Page, error) {
 	}
 	return response.Page{List: module, Total: count}, nil
 }
+
 func (moduleService *ModuleService) Find(id string) (model.Module, error) {
-	idInt, err := utils.StringToInt32(id)
-	if err != nil {
-		return model.Module{}, err
-	}
-	module, err := query.Module.WithContext(context.Background()).Where(query.Module.ID.Eq(idInt)).First()
+	module, err := query.Module.WithContext(context.Background()).Where(query.Module.ID.Eq(gconv.Int32(id))).First()
 	if err != nil {
 		return model.Module{}, err
 	}
 	return *module, nil
 }
+
 func (moduleService *ModuleService) Update(id string, module model.Module) error {
-	idInt, err := utils.StringToInt32(id)
-	if err != nil {
-		return err
-	}
-	data := utils.StructToMap(module)
-	_, err = query.Module.WithContext(context.Background()).Where(query.Module.ID.Eq(idInt)).Updates(data)
+	_, err := query.Module.WithContext(context.Background()).Where(query.Module.ID.Eq(gconv.Int32(id))).Updates(gconv.Map(module))
 	return err
 }

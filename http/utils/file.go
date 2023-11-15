@@ -1,10 +1,11 @@
 package utils
 
 import (
-	"github.com/xilanhuaer/http-client/common/entity"
-	"github.com/xuri/excelize/v2"
 	"strconv"
 	"strings"
+
+	"github.com/xilanhuaer/http-client/common/entity"
+	"github.com/xuri/excelize/v2"
 )
 
 func ReadExcel(path string, data *[]entity.Data, maps map[string]interface{}) {
@@ -16,16 +17,21 @@ func ReadExcel(path string, data *[]entity.Data, maps map[string]interface{}) {
 	if err != nil {
 		panic(err)
 	}
-	for _, row := range rows {
+	for index, row := range rows {
+
+		if index == 0 {
+			continue
+		}
+
 		content := entity.Data{}
 		content.Project.Name = row[0]
 		content.Project.TestingMethod = row[1]
 		content.Project.TestingBasis = row[2]
 		content.Project.TargetGene = row[3]
 		content.Project.TechPlatform = row[4]
-		content.Project.FlowID = parseString(maps["flow"].(map[string]string)[row[5]])
-		content.Project.PricingMethod = row[6]
-		content.Project.Price = parseString(maps["price"].(map[string]string)[row[7]]) * 100
+		content.Project.FlowID = parseString(isOk("flow", row[5], maps))
+		content.Project.PricingMethod = isOk("price", row[6], maps)
+		content.Project.Price = parseString(row[7]) * 100
 		content.Project.DetermineCondition = row[8]
 		parts := strings.Split(row[9], ",")
 		for _, v := range parts {
@@ -48,6 +54,14 @@ func ReadExcel(path string, data *[]entity.Data, maps map[string]interface{}) {
 		}
 		*data = append(*data, content)
 	}
+}
+
+func isOk(locate, key string, data map[string]interface{}) string {
+	value, ok := data[locate].(map[string]string)[key]
+	if ok {
+		return value
+	}
+	return ""
 }
 
 func parseString(str string) int {

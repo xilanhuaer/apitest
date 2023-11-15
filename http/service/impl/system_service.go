@@ -3,6 +3,7 @@ package impl
 import (
 	"context"
 
+	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/xilanhuaer/http-client/common/response"
 	"github.com/xilanhuaer/http-client/dal/model"
 	"github.com/xilanhuaer/http-client/dal/query"
@@ -35,11 +36,7 @@ func (systemService *SystemService) List(params string) (response.Page, error) {
 }
 
 func (systemService *SystemService) Find(id string) (model.System, error) {
-	idInt, err := utils.StringToInt32(id)
-	if err != nil {
-		return model.System{}, err
-	}
-	system, err := query.System.WithContext(context.Background()).Where(query.System.ID.Eq(idInt)).First()
+	system, err := query.System.WithContext(context.Background()).Where(query.System.ID.Eq(gconv.Int32(id))).First()
 	if err != nil {
 		return model.System{}, err
 	}
@@ -47,11 +44,6 @@ func (systemService *SystemService) Find(id string) (model.System, error) {
 }
 
 func (systemService *SystemService) Update(id string, system model.System) error {
-	idInt, err := utils.StringToInt32(id)
-	if err != nil {
-		return err
-	}
-	data := utils.StructToMap(system)
-	_, err = query.System.WithContext(context.Background()).Where(query.System.ID.Eq(idInt)).Updates(data)
+	_, err := query.System.WithContext(context.Background()).Where(query.System.ID.Eq(gconv.Int32(id))).Updates(gconv.Map(system))
 	return err
 }

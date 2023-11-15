@@ -20,6 +20,7 @@ func (moduleApi *ModuleApi) Create(context *gin.Context) {
 	}
 	response.OK(context)
 }
+
 func (moduleApi *ModuleApi) List(context *gin.Context) {
 	params := context.Query("params")
 	page, err := moduleService.List(params)
@@ -29,6 +30,7 @@ func (moduleApi *ModuleApi) List(context *gin.Context) {
 	}
 	response.OKWithData(page, context)
 }
+
 func (moduleApi *ModuleApi) Find(context *gin.Context) {
 	id := context.Param("id")
 	module, err := moduleService.Find(id)
@@ -38,6 +40,7 @@ func (moduleApi *ModuleApi) Find(context *gin.Context) {
 	}
 	response.OKWithData(module, context)
 }
+
 func (moduleApi *ModuleApi) Update(context *gin.Context) {
 	id := context.Param("id")
 	var module model.Module

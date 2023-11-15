@@ -1,10 +1,11 @@
 package controller
 
 import (
-	"github.com/xilanhuaer/http-client/common/response"
-	"github.com/xilanhuaer/http-client/dal/model"
 	"os"
 	"strconv"
+
+	"github.com/xilanhuaer/http-client/common/response"
+	"github.com/xilanhuaer/http-client/dal/model"
 
 	"github.com/gin-gonic/gin"
 	"github.com/xilanhuaer/http-client/utils"

@@ -30,6 +30,7 @@ func (systemApi *SystemApi) List(context *gin.Context) {
 	}
 	response.OKWithData(page, context)
 }
+
 func (systemApi *SystemApi) Find(context *gin.Context) {
 	id := context.Param("id")
 	system, err := systemService.Find(id)
@@ -39,6 +40,7 @@ func (systemApi *SystemApi) Find(context *gin.Context) {
 	}
 	response.OKWithData(system, context)
 }
+
 func (systemApi *SystemApi) Update(context *gin.Context) {
 	var system model.System
 	if err := context.ShouldBindJSON(&system); err != nil {
