@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"strconv"
+	"github.com/gogf/gf/v2/util/gconv"
 	"strings"
 
 	"github.com/xilanhuaer/http-client/common/entity"
@@ -29,13 +29,13 @@ func ReadExcel(path string, data *[]entity.Data, maps map[string]interface{}) {
 		content.Project.TestingBasis = row[2]
 		content.Project.TargetGene = row[3]
 		content.Project.TechPlatform = row[4]
-		content.Project.FlowID = parseString(isOk("flow", row[5], maps))
-		content.Project.PricingMethod = isOk("price", row[6], maps)
-		content.Project.Price = parseString(row[7]) * 100
+		content.Project.FlowID = gconv.Int(maps["flow"].(map[string]string)[row[5]])
+		content.Project.PricingMethod = gconv.Int(maps["price"].(map[string]string)[row[6]])
+		content.Project.Price = gconv.Int(row[7]) * 100
 		content.Project.DetermineCondition = row[8]
 		parts := strings.Split(row[9], ",")
 		for _, v := range parts {
-			content.SampleCategoryIDs = append(content.SampleCategoryIDs, parseString(maps["sample"].(map[string]string)[v]))
+			content.SampleCategoryIDs = append(content.SampleCategoryIDs, gconv.Int(maps["sample"].(map[string]string)[v]))
 		}
 		for i := 10; i < len(row); i++ {
 			if row[i] != "" {
@@ -46,25 +46,12 @@ func ReadExcel(path string, data *[]entity.Data, maps map[string]interface{}) {
 				content.OperationSteps = append(content.OperationSteps,
 					entity.OperationSteps{
 						StepName:   operationStep[0],
-						FlowStepID: parseString(maps["control"].(map[string]string)[operationStep[1]]),
-						WidgetType: parseString(maps["step"].(map[string]string)[operationStep[2]]),
+						FlowStepID: gconv.Int(maps["control"].(map[string]string)[operationStep[1]]),
+						WidgetType: gconv.Int(maps["widget"].(map[string]string)[operationStep[2]]),
 					},
 				)
 			}
 		}
 		*data = append(*data, content)
 	}
-}
-
-func isOk(locate, key string, data map[string]interface{}) string {
-	value, ok := data[locate].(map[string]string)[key]
-	if ok {
-		return value
-	}
-	return ""
-}
-
-func parseString(str string) int {
-	data, _ := strconv.Atoi(str)
-	return data
 }

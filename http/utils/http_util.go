@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"github.com/gogf/gf/v2/util/gconv"
 	"io"
 	"net/http"
 	"os"
@@ -54,13 +55,9 @@ func DoHttp(method, path, params, headers, body string) (string, error) {
 // set header
 func setHeaders(request *http.Request, headers string) error {
 	Replace(&headers)
-	header := make(map[string]string)
-	header, err := StringToMap(headers)
-	if err != nil {
-		return err
-	}
+	header := gconv.Map(headers)
 	for key, value := range header {
-		request.Header.Set(key, value)
+		request.Header.Set(key, gconv.String(value))
 	}
 	return nil
 }

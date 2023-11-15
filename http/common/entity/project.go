@@ -12,7 +12,7 @@ type Project struct {
 	TargetGene         string
 	TechPlatform       string
 	FlowID             int
-	PricingMethod      string
+	PricingMethod      int
 	Price              int
 	DetermineCondition string
 }

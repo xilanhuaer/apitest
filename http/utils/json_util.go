@@ -1,25 +1,13 @@
 package utils
 
 import (
-	"encoding/json"
-	"fmt"
+	"github.com/gogf/gf/v2/util/gconv"
+	"github.com/tidwall/gjson"
 	"os"
-
-	"github.com/oliveagle/jsonpath"
 )
 
-func DataExtract(content, path, name string) (err error) {
-	var jsonData interface{}
-
-	err = json.Unmarshal([]byte(content), &jsonData)
-	if err != nil {
-		return err
+func DataExtract(content, path, name string) {
+	if err := os.Setenv(name, gconv.String(gjson.Get(content, path))); err != nil {
+		panic(err)
 	}
-	lookup, err := jsonpath.JsonPathLookup(jsonData, path)
-	if err != nil {
-		return err
-	}
-	value := fmt.Sprintf("%v", lookup)
-	err = os.Setenv(name, value)
-	return err
 }
