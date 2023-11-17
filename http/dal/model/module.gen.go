@@ -15,14 +15,14 @@ const TableNameModule = "module"
 // Module mapped from table <module>
 type Module struct {
 	ID          int32          `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
-	Name        string         `gorm:"column:name;not null;comment:模块名称" json:"name"`                 // 模块名称
-	Description string         `gorm:"column:description;not null;comment:模块描述" json:"description"`   // 模块描述
-	SystemID    int32          `gorm:"column:system_id;not null;comment:所属系统id" json:"system_id"`     // 所属系统id
-	SystemName  string         `gorm:"column:system_name;not null;comment:所属系统名称" json:"system_name"` // 所属系统名称
-	Enable      bool           `gorm:"column:enable;not null;default:1;comment:是否启用" json:"enable"`   // 是否启用
-	CreatedAt   time.Time      `gorm:"column:created_at;not null;comment:创建时间" json:"created_at"`     // 创建时间
-	UpdatedAt   time.Time      `gorm:"column:updated_at;not null;comment:更新时间" json:"updated_at"`     // 更新时间
-	DeletedAt   gorm.DeletedAt `gorm:"column:deleted_at;comment:删除时间" json:"deleted_at"`              // 删除时间
+	Name        string         `gorm:"column:name;not null;comment:模块名称" json:"name"`                                       // 模块名称
+	Description string         `gorm:"column:description;not null;comment:模块描述" json:"description"`                         // 模块描述
+	SystemID    int32          `gorm:"column:system_id;not null;comment:所属系统id" json:"system_id"`                           // 所属系统id
+	SystemName  string         `gorm:"column:system_name;not null;comment:所属系统名称" json:"system_name"`                       // 所属系统名称
+	Enable      bool           `gorm:"column:enable;not null;default:1;comment:是否启用" json:"enable"`                         // 是否启用
+	CreatedAt   time.Time      `gorm:"column:created_at;not null;default:CURRENT_TIMESTAMP;comment:创建时间" json:"created_at"` // 创建时间
+	UpdatedAt   time.Time      `gorm:"column:updated_at;not null;default:CURRENT_TIMESTAMP;comment:更新时间" json:"updated_at"` // 更新时间
+	DeletedAt   gorm.DeletedAt `gorm:"column:deleted_at;comment:删除时间" json:"deleted_at"`                                    // 删除时间
 }
 
 // TableName Module's table name

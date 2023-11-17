@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/xilanhuaer/http-client/dal/query"
-	"github.com/xilanhuaer/http-client/global"
-	"github.com/xilanhuaer/http-client/utils"
 	"log"
 	"os"
 	"reflect"
+
+	"github.com/xilanhuaer/http-client/dal/query"
+	"github.com/xilanhuaer/http-client/global"
+	"github.com/xilanhuaer/http-client/utils"
 )
 
 func init() {
@@ -34,10 +35,4 @@ func main() {
 	//r.Use(middleware.JWTAuthMiddleware())
 	//router.Register(r)
 	//_ = r.Run(":8080")
-	//maps := map[string]interface{}{}
-	//data := make([]entity.Data, 0)
-	//utils.ReadExcel("data.xlsx", &data, maps)
-	//for _, v := range data {
-	//	fmt.Println(v)
-	//}
 }
