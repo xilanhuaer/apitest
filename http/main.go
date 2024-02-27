@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"reflect"
+	"sync"
+	"time"
 
 	"github.com/xilanhuaer/http-client/dal/query"
 	"github.com/xilanhuaer/http-client/global"
@@ -15,10 +16,7 @@ func init() {
 	global.GetConfig("config.yaml")
 	global.GetConn()
 	query.SetDefault(global.DB)
-	err := utils.SetEnv()
-	if err != nil {
-		log.Panic(err)
-	}
+	utils.SetEnv()
 	typeEnv := reflect.TypeOf(global.Config.Env)
 	for i := 0; i < typeEnv.NumField(); i++ {
 		field := typeEnv.Field(i)
@@ -35,4 +33,18 @@ func main() {
 	//r.Use(middleware.JWTAuthMiddleware())
 	//router.Register(r)
 	//_ = r.Run(":8080")
+	start := time.Now()
+	var wg sync.WaitGroup
+	for i := 0; i < 100; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			_, err := utils.HTTP("GET", "/get", nil, nil, nil)
+			if err != nil {
+				return
+			}
+		}()
+	}
+	wg.Wait()
+	fmt.Println(time.Since(start))
 }

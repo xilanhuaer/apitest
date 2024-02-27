@@ -29,7 +29,7 @@ func GenerateRSAKey(bits int) {
 	// 构建一个pem.Block结构体对象
 	privateBlock := pem.Block{Type: "RSA Private Key", Bytes: X509PrivateKey}
 	// 将数据保存到文件
-	pem.Encode(privateFile, &privateBlock)
+	_ = pem.Encode(privateFile, &privateBlock)
 
 	// 保存公钥
 	// 获取公钥的数据
@@ -49,7 +49,7 @@ func GenerateRSAKey(bits int) {
 	// 创建一个pem.Block结构体对象
 	publicBlock := pem.Block{Type: "RSA Public Key", Bytes: X509PublicKey}
 	// 保存到文件
-	pem.Encode(publicFile, &publicBlock)
+	_ = pem.Encode(publicFile, &publicBlock)
 }
 
 // RsaEncrypt RSA加密
@@ -62,11 +62,13 @@ func RsaEncrypt(content string, path string) string {
 	if err != nil {
 		panic(err)
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		_ = file.Close()
+	}(file)
 	// 读取文件的内容
 	info, _ := file.Stat()
 	buf := make([]byte, info.Size())
-	file.Read(buf)
+	_, _ = file.Read(buf)
 	// pem解码
 	block, _ := pem.Decode(buf)
 	// x509解码
@@ -96,11 +98,13 @@ func RsaDecrypt(cipherString string, path string) string {
 	if err != nil {
 		panic(err)
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		_ = file.Close()
+	}(file)
 	// 获取文件内容
 	info, _ := file.Stat()
 	buf := make([]byte, info.Size())
-	file.Read(buf)
+	_, _ = file.Read(buf)
 	// pem解码
 	block, _ := pem.Decode(buf)
 	// X509解码

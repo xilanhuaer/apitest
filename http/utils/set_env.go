@@ -7,14 +7,10 @@ import (
 	"github.com/xilanhuaer/http-client/global"
 )
 
-func SetEnv() error {
+func SetEnv() {
 	envType := reflect.TypeOf(global.Config.Env)
 	for i := 0; i < envType.NumField(); i++ {
 		field := envType.Field(i)
-		err := os.Setenv(field.Name, reflect.ValueOf(global.Config.Env).Field(i).String())
-		if err != nil {
-			return err
-		}
+		_ = os.Setenv(field.Name, reflect.ValueOf(global.Config.Env).Field(i).String())
 	}
-	return nil
 }

@@ -30,7 +30,7 @@ func ReadExcel(path string, data *[]entity.Data, maps map[string]interface{}) {
 		content.Project.TargetGene = row[3]
 		content.Project.TechPlatform = row[4]
 		content.Project.FlowID = gconv.Int(maps["flow"].(map[string]string)[row[5]])
-		content.Project.PricingMethod = gconv.Int(maps["price"].(map[string]string)[row[6]])
+		content.Project.PricingMethod = gconv.Int(gconv.Int(maps["price"].(map[string]string)[row[6]]))
 		content.Project.Price = gconv.Int(row[7]) * 100
 		content.Project.DetermineCondition = row[8]
 		parts := strings.Split(row[9], ",")
